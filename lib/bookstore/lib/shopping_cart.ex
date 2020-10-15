@@ -66,13 +66,15 @@ defmodule ShoppingCart do
 
   defp calculate_discount(cart_list, discount \\ 0)
 
-  defp calculate_discount([_h | [_ | _]] = cart_list, discount) do
-    qtd_unique_books = length(cart_list)
-    discount_rate = Map.get(@discounts, qtd_unique_books)
-    discount_amount = discount + discount_rate * (qtd_unique_books * @book_price)
+  defp calculate_discount([_h | t] = cart_list, discount) when length(t) >= 1 do
+    max_books_qty = length(Map.to_list(@discounts)) + 1
+    qty_unique_books = min(length(cart_list), max_books_qty)
+
+    discount_rate = Map.get(@discounts, qty_unique_books)
+    discount_amount = discount + discount_rate * (qty_unique_books * @book_price)
 
     cart_list
-    |> remove_unique_books()
+    |> remove_unique_books(qty_unique_books)
     |> calculate_discount(discount_amount)
   end
 
@@ -80,9 +82,12 @@ defmodule ShoppingCart do
     discount
   end
 
-  defp remove_unique_books([_h | _t] = cart_list) do
+  defp remove_unique_books([_h | _t] = cart_list, qty_to_remove) do
     cart_list
-    |> Stream.map(fn {book, quantity} -> {book, quantity - 1} end)
+    |> Stream.with_index(1)
+    |> Stream.map(fn {{book, quantity}, index} ->
+      if index <= qty_to_remove, do: {book, quantity - 1}, else: {book, quantity}
+    end)
     |> Enum.filter(fn {_book, quantity} -> quantity > 0 end)
   end
 
