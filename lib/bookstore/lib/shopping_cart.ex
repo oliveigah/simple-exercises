@@ -18,6 +18,22 @@ defmodule ShoppingCart do
   end
 
   def add_book(%ShoppingCart{} = shopping_cart, book, quantity) when quantity > 0 do
+    shopping_cart
+    |> update_cart(:add, book, quantity)
+    |> update_full_price()
+    |> update_discount()
+    |> update_final_price()
+  end
+
+  def remove_book(%ShoppingCart{} = shopping_cart, book, quantity) when quantity > 0 do
+    shopping_cart
+    |> update_cart(:remove, book, quantity)
+    |> update_full_price()
+    |> update_discount()
+    |> update_final_price()
+  end
+
+  defp update_cart(%ShoppingCart{} = shopping_cart, :add, book, quantity) do
     current_cart = Map.get(shopping_cart, :cart)
     current_quantity = Map.get(current_cart, book, 0)
 
@@ -25,12 +41,9 @@ defmodule ShoppingCart do
     new_cart = Map.put(current_cart, book, new_quantity)
 
     Map.put(shopping_cart, :cart, new_cart)
-    |> update_full_price()
-    |> update_discount()
-    |> update_final_price()
   end
 
-  def remove_book(%ShoppingCart{} = shopping_cart, book, quantity) when quantity > 0 do
+  defp update_cart(%ShoppingCart{} = shopping_cart, :remove, book, quantity) do
     current_cart = Map.get(shopping_cart, :cart)
     current_quantity = Map.get(current_cart, book, 0)
 
@@ -42,9 +55,6 @@ defmodule ShoppingCart do
         else: Map.delete(current_cart, book)
 
     Map.put(shopping_cart, :cart, new_cart)
-    |> update_full_price()
-    |> update_discount()
-    |> update_final_price()
   end
 
   defp update_full_price(%ShoppingCart{} = shopping_cart) do
@@ -52,16 +62,16 @@ defmodule ShoppingCart do
     |> Map.put(:full_price, calculate_full_price(shopping_cart.cart))
   end
 
+  defp calculate_full_price(cart) do
+    cart
+    |> Enum.reduce(0, fn {_book, quantity}, acc -> acc + quantity * @book_price end)
+  end
+
   defp update_discount(%ShoppingCart{} = shopping_cart) do
     cart_list = Map.to_list(shopping_cart.cart)
 
     shopping_cart
     |> Map.put(:discount_amount, calculate_discount(cart_list))
-  end
-
-  defp update_final_price(%ShoppingCart{} = shopping_cart) do
-    final_price = shopping_cart.full_price - shopping_cart.discount_amount
-    Map.put(shopping_cart, :final_price, final_price)
   end
 
   defp calculate_discount(cart_list, discount \\ 0)
@@ -91,8 +101,8 @@ defmodule ShoppingCart do
     |> Enum.filter(fn {_book, quantity} -> quantity > 0 end)
   end
 
-  defp calculate_full_price(cart) do
-    cart
-    |> Enum.reduce(0, fn {_book, quantity}, acc -> acc + quantity * @book_price end)
+  defp update_final_price(%ShoppingCart{} = shopping_cart) do
+    final_price = shopping_cart.full_price - shopping_cart.discount_amount
+    Map.put(shopping_cart, :final_price, final_price)
   end
 end
