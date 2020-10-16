@@ -133,8 +133,8 @@ defmodule ShoppingCartTest do
 
     assert %{1 => 2, 2 => 2, 3 => 2, 4 => 1, 5 => 1} = sc.cart
     assert sc.full_price == 64
-    assert sc.discount_amount == 40 * 0.25 + 24 * 0.10
-    assert sc.final_price == 64 - (40 * 0.25 + 24 * 0.10)
+    assert sc.discount_amount == 32 * 0.2 + 32 * 0.2
+    assert sc.final_price == 64 - (32 * 0.2 + 32 * 0.2)
   end
 
   test "2 copies of 4 books and 1 different book" do
@@ -178,8 +178,8 @@ defmodule ShoppingCartTest do
 
     assert %{1 => 5, 2 => 4, 3 => 3, 4 => 2, 5 => 1} = sc.cart
     assert sc.full_price == 15 * 8
-    assert sc.discount_amount == 40 * 0.25 + 32 * 0.20 + 24 * 0.10 + 16 * 0.05
-    assert sc.final_price == 15 * 8 - (40 * 0.25 + 32 * 0.20 + 24 * 0.10 + 16 * 0.05)
+    assert sc.discount_amount == 32 * 0.2 + 32 * 0.2 + 32 * 0.2 + 16 * 0.05
+    assert sc.final_price == 15 * 8 - (32 * 0.2 + 32 * 0.2 + 32 * 0.2 + 16 * 0.05)
   end
 
   test "7 different books " do
@@ -248,12 +248,16 @@ defmodule ShoppingCartTest do
     assert sc.full_price == 28 * 8
 
     assert sc.discount_amount ==
-             5 * 8 * 0.25 + 5 * 8 * 0.25 + 5 * 8 * 0.25 + 4 * 8 * 0.2 + 3 * 8 * 0.1 + 2 * 8 * 0.05 +
-               2 * 8 * 0.05
+             Float.round(
+               40 * 0.25 + 40 * 0.25 + 40 * 0.25 + 32 * 0.2 + 24 * 0.1 + 16 * 0.05 + 16 * 0.05,
+               5
+             )
 
     assert sc.final_price ==
-             28 * 8 -
-               (5 * 8 * 0.25 + 5 * 8 * 0.25 + 5 * 8 * 0.25 + 4 * 8 * 0.2 + 3 * 8 * 0.1 +
-                  2 * 8 * 0.05 + 2 * 8 * 0.05)
+             Float.round(
+               28 * 8 -
+                 (40 * 0.25 + 40 * 0.25 + 40 * 0.25 + 32 * 0.2 + 24 * 0.1 + 16 * 0.05 + 16 * 0.05),
+               5
+             )
   end
 end

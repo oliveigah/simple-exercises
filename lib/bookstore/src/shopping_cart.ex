@@ -9,6 +9,7 @@ defmodule ShoppingCart do
   }
 
   defstruct cart: %{},
+            discount_path: [],
             discount_amount: 0,
             full_price: 0,
             final_price: 0
@@ -68,37 +69,61 @@ defmodule ShoppingCart do
   end
 
   defp update_discount(%ShoppingCart{} = shopping_cart) do
-    cart_list = Map.to_list(shopping_cart.cart)
+    {discount, path} = calculate_discount(shopping_cart.cart)
 
     shopping_cart
-    |> Map.put(:discount_amount, calculate_discount(cart_list))
+    |> Map.put(:discount_amount, discount)
+    |> Map.put(:discount_path, path)
   end
 
-  defp calculate_discount(cart_list, discount \\ 0)
+  defp calculate_discount(%{} = cart) do
+    bundles = map_size(@discounts) + 1
 
-  defp calculate_discount([_h | t] = cart_list, discount) when length(t) >= 1 do
-    max_books_qty = length(Map.to_list(@discounts)) + 1
-    qty_unique_books = min(length(cart_list), max_books_qty)
-
-    discount_rate = Map.get(@discounts, qty_unique_books)
-    discount_amount = discount + discount_rate * (qty_unique_books * @book_price)
-
-    cart_list
-    |> remove_unique_books(qty_unique_books)
-    |> calculate_discount(discount_amount)
-  end
-
-  defp calculate_discount(_, discount) do
-    discount
-  end
-
-  defp remove_unique_books([_h | _t] = cart_list, qty_to_remove) do
-    cart_list
-    |> Stream.with_index(1)
-    |> Stream.map(fn {{book, quantity}, index} ->
-      if index <= qty_to_remove, do: {book, quantity - 1}, else: {book, quantity}
+    Enum.map(2..bundles, fn bundle_size ->
+      calculate_discount_recursive(cart, bundle_size, {0, []})
     end)
-    |> Enum.filter(fn {_book, quantity} -> quantity > 0 end)
+    |> find_biggest()
+  end
+
+  defp calculate_discount_recursive(cart, bundle_size, {acc_discount, acc_path})
+       when map_size(cart) >= bundle_size do
+    discount_rate = Map.get(@discounts, bundle_size, 0)
+    discount_amount = acc_discount + discount_rate * (bundle_size * @book_price)
+    remaining_cart = remove_unique_books(cart, bundle_size)
+
+    bundles = map_size(@discounts) + 1
+
+    Enum.map(2..bundles, fn next_bundle_size ->
+      calculate_discount_recursive(
+        remaining_cart,
+        next_bundle_size,
+        {discount_amount, acc_path ++ [bundle_size]}
+      )
+    end)
+    |> find_biggest()
+  end
+
+  defp calculate_discount_recursive(_, _, {result_discount, result_path}) do
+    {result_discount, result_path}
+  end
+
+  defp find_biggest(list) do
+    list
+    |> Enum.reduce({0, []}, fn {discount, path}, acc ->
+      if discount >= elem(acc, 0), do: {discount, path}, else: acc
+    end)
+  end
+
+  defp remove_unique_books(%{} = cart, qty_to_remove) do
+    {books_to_remove, rest} = Enum.split(cart, qty_to_remove)
+
+    new_books =
+      books_to_remove
+      |> Stream.map(fn {book, quantity} -> {book, quantity - 1} end)
+      |> Enum.filter(fn {_book, quantity} -> quantity > 0 end)
+
+    (new_books ++ rest)
+    |> Enum.reduce(%{}, fn {book, quantity}, acc -> Map.put(acc, book, quantity) end)
   end
 
   defp update_final_price(%ShoppingCart{} = shopping_cart) do
