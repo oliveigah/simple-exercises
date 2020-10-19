@@ -5,6 +5,7 @@ defmodule ShoppingCartTest do
     sc =
       ShoppingCart.new()
       |> ShoppingCart.add_book(1, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 1} = sc.cart
     assert sc.full_price == 8
@@ -16,6 +17,7 @@ defmodule ShoppingCartTest do
     sc =
       ShoppingCart.new()
       |> ShoppingCart.add_book(1, 2)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 2} = sc.cart
     assert sc.full_price == 16
@@ -28,6 +30,7 @@ defmodule ShoppingCartTest do
       ShoppingCart.new()
       |> ShoppingCart.add_book(1, 1)
       |> ShoppingCart.add_book(2, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 1, 2 => 1} = sc.cart
     assert sc.full_price == 16
@@ -41,6 +44,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(1, 1)
       |> ShoppingCart.add_book(2, 1)
       |> ShoppingCart.add_book(3, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 1, 2 => 1, 3 => 1} = sc.cart
     assert sc.full_price == 24
@@ -55,6 +59,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(2, 1)
       |> ShoppingCart.add_book(3, 1)
       |> ShoppingCart.add_book(4, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 1, 2 => 1, 3 => 1, 4 => 1} = sc.cart
     assert sc.full_price == 32
@@ -70,6 +75,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(3, 1)
       |> ShoppingCart.add_book(4, 1)
       |> ShoppingCart.add_book(5, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 1, 2 => 1, 3 => 1, 4 => 1, 5 => 1} = sc.cart
     assert sc.full_price == 40
@@ -85,6 +91,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(3, 1)
       |> ShoppingCart.add_book(4, 1)
       |> ShoppingCart.add_book(5, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 2, 2 => 1, 3 => 1, 4 => 1, 5 => 1} = sc.cart
     assert sc.full_price == 48
@@ -100,6 +107,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(3, 1)
       |> ShoppingCart.add_book(4, 1)
       |> ShoppingCart.add_book(5, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 3, 2 => 1, 3 => 1, 4 => 1, 5 => 1} = sc.cart
     assert sc.full_price == 56
@@ -115,6 +123,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(3, 1)
       |> ShoppingCart.add_book(4, 1)
       |> ShoppingCart.add_book(5, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 2, 2 => 2, 3 => 1, 4 => 1, 5 => 1} = sc.cart
     assert sc.full_price == 56
@@ -130,6 +139,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(3, 2)
       |> ShoppingCart.add_book(4, 1)
       |> ShoppingCart.add_book(5, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 2, 2 => 2, 3 => 2, 4 => 1, 5 => 1} = sc.cart
     assert sc.full_price == 64
@@ -145,6 +155,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(3, 2)
       |> ShoppingCart.add_book(4, 2)
       |> ShoppingCart.add_book(5, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 2, 2 => 2, 3 => 2, 4 => 2, 5 => 1} = sc.cart
     assert sc.full_price == 72
@@ -160,6 +171,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(3, 2)
       |> ShoppingCart.add_book(4, 2)
       |> ShoppingCart.add_book(5, 2)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 2, 2 => 2, 3 => 2, 4 => 2, 5 => 2} = sc.cart
     assert sc.full_price == 80
@@ -175,6 +187,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(3, 3)
       |> ShoppingCart.add_book(4, 2)
       |> ShoppingCart.add_book(5, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 5, 2 => 4, 3 => 3, 4 => 2, 5 => 1} = sc.cart
     assert sc.full_price == 15 * 8
@@ -192,6 +205,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(5, 1)
       |> ShoppingCart.add_book(6, 1)
       |> ShoppingCart.add_book(7, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 1, 2 => 1, 3 => 1, 4 => 1, 5 => 1, 6 => 1, 7 => 1} = sc.cart
     assert sc.full_price == 7 * 8
@@ -209,6 +223,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(5, 2)
       |> ShoppingCart.add_book(6, 2)
       |> ShoppingCart.add_book(7, 2)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 2, 2 => 2, 3 => 2, 4 => 2, 5 => 2, 6 => 2, 7 => 2} = sc.cart
     assert sc.full_price == 14 * 8
@@ -226,6 +241,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(5, 1)
       |> ShoppingCart.add_book(6, 1)
       |> ShoppingCart.add_book(7, 1)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 2, 2 => 2, 3 => 1, 4 => 1, 5 => 1, 6 => 1, 7 => 1} = sc.cart
     assert sc.full_price == 9 * 8
@@ -243,6 +259,7 @@ defmodule ShoppingCartTest do
       |> ShoppingCart.add_book(5, 5)
       |> ShoppingCart.add_book(6, 6)
       |> ShoppingCart.add_book(7, 7)
+      |> ShoppingCart.apply_discount()
 
     assert %{1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7} = sc.cart
     assert sc.full_price == 28 * 8

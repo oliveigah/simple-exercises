@@ -21,14 +21,18 @@ defmodule ShoppingCart do
   def add_book(%ShoppingCart{} = shopping_cart, book, quantity) when quantity > 0 do
     shopping_cart
     |> update_cart(:add, book, quantity)
-    |> update_full_price()
-    |> update_discount()
-    |> update_final_price()
   end
 
   def remove_book(%ShoppingCart{} = shopping_cart, book, quantity) when quantity > 0 do
     shopping_cart
     |> update_cart(:remove, book, quantity)
+  end
+
+  def apply_discount(%ShoppingCart{} = shopping_cart) do
+    IO.puts("---------------------------------")
+    IO.inspect(shopping_cart.cart)
+
+    shopping_cart
     |> update_full_price()
     |> update_discount()
     |> update_final_price()
@@ -90,10 +94,19 @@ defmodule ShoppingCart do
     discount_rate = Map.get(@discounts, bundle_size, 0)
     discount_amount = acc_discount + discount_rate * (bundle_size * @book_price)
     remaining_cart = remove_unique_books(cart, bundle_size)
-
     bundles = map_size(@discounts) + 1
 
-    Enum.map(2..bundles, fn next_bundle_size ->
+    # This line prevents spend computation on paths that will result on termination
+    # For instance if the cart only has 3 different books remaining,
+    # all bundles with size 4 or more will lead to branch termination
+    # and this will lead to a lower discount value since it still has enough books to discount.
+    # The max(2, (...)) is used, because the recursion must end, and the guard map_size(cart) >= bundle_size does that
+    # if a cart has less books than the lowest bundle size it will be terminated
+    # Without max, the new_bundles could be a value lower than 2, leading to undesired behaviour
+    # So the minimal bundle size must be the lowest key on @discounts
+    new_bundles = max(2, min(bundles, map_size(remaining_cart)))
+
+    Enum.map(2..new_bundles, fn next_bundle_size ->
       calculate_discount_recursive(
         remaining_cart,
         next_bundle_size,
@@ -104,6 +117,7 @@ defmodule ShoppingCart do
   end
 
   defp calculate_discount_recursive(_, _, {result_discount, result_path}) do
+    IO.puts(inspect({result_path, result_discount}))
     {result_discount, result_path}
   end
 
