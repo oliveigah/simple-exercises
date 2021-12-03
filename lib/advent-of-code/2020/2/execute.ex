@@ -1,4 +1,4 @@
-defmodule AoC.Challenge2 do
+defmodule AoC2020.Challenge2 do
   def run_part_1 do
     get_input()
     |> Stream.map(&parse_input_line/1)
@@ -15,6 +15,7 @@ defmodule AoC.Challenge2 do
 
   defp verify_input_1({min, max, rule_letter, password}) do
     parsed_rule_letter = List.first(String.to_charlist(rule_letter))
+
     rule_letter_qty =
       password
       |> String.to_charlist()
@@ -26,8 +27,8 @@ defmodule AoC.Challenge2 do
   defp verify_input_2({first, second, rule_letter, password}) do
     parsed_rule_letter = List.first(String.to_charlist(rule_letter))
     parsed_password = String.to_charlist(password)
-    first_letter = Enum.at(parsed_password, first-1)
-    second_letter = Enum.at(parsed_password, second-1)
+    first_letter = Enum.at(parsed_password, first - 1)
+    second_letter = Enum.at(parsed_password, second - 1)
 
     match_first = first_letter == parsed_rule_letter
     match_second = second_letter == parsed_rule_letter

@@ -1,4 +1,4 @@
-defmodule AoC.Challenge1 do
+defmodule AoC2020.Challenge1 do
   def run do
     get_input()
     |> Enum.map(&String.to_integer/1)
